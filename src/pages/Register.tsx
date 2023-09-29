@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 const Register = () => {
 	return (
-		<div>
+		<>
 			<h1 className="text-sky-600 font-black text-6xl">Create your account and manage your projects</h1>
 			<form className="bg-white shadow rounded-lg my-10 px-8 py-10">
 				<div className="my-5">
@@ -61,7 +61,7 @@ const Register = () => {
 					Forgot your password?
 				</Link>
 			</nav>
-		</div>
+		</>
 	)
 }
 
