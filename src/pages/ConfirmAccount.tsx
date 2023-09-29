@@ -1,10 +1,9 @@
-import React from 'react'
 
 const ConfirmAccount = () => {
 	return (
-		<div>
-			
-		</div>
+		<>
+			<h1 className="text-sky-600 font-black text-6xl">Confirm your account and start to create your projects</h1>		
+		</>
 	)
 }
 
