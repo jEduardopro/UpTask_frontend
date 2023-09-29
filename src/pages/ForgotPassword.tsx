@@ -1,10 +1,54 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import Message from '../components/Message'
+import axios, { AxiosError } from 'axios'
 
 const ForgotPassword = () => {
+	const [email, setEmail] = useState('')
+	const [message, setMessage] = useState({
+		error: false,
+		text: ''
+	})
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		
+		if (email === '') {
+			setMessage({
+				error: true,
+				text: 'Please enter your email'
+			})
+			return
+		}
+
+		try {
+			const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/forgot-password`, { email })			
+			setMessage({ error: false, text: data.message })
+		} catch (error) {
+			if (!axios.isAxiosError(error)) {
+				setMessage({ error: true, text: 'Something went wrong' })
+				return
+			}
+			const axiosError = error as AxiosError<{ message: string }>
+			if (axiosError.response) {
+				setMessage({ error: true, text: axiosError.response.data.message })
+			} else {
+				setMessage({ error: true, text: axiosError.message })
+			}
+		}
+	}
+
+	const {text} = message
+
 	return (
 		<>
 			<h1 className="text-sky-600 font-black text-6xl">Recover your access and don't lose your projects</h1>
-			<form className="bg-white shadow rounded-lg my-10 px-8 py-10">
+			{
+				text && (<Message message={message} />)
+			}
+			<form className="bg-white shadow rounded-lg my-10 px-8 py-10"
+				onSubmit={handleSubmit}
+			>
 				<div className="my-5">
 					<label htmlFor="email" className="uppercase text-slate-600 block text-lg font-bold">Email</label>
 					<input
@@ -12,6 +56,8 @@ const ForgotPassword = () => {
 						type="email"
 						placeholder="Email"
 						className="w-full mt-1 p-2 border border-slate-200 rounded bg-slate-50 outline-none"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 					/>
 				</div>
 

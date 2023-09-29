@@ -40,7 +40,6 @@ const Register = () => {
 				password
 			}
 			const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, payload)
-			console.log(data);
 			setMessage({ error: false, text: data.message })
 		} catch (error: unknown) {
 			if (!axios.isAxiosError(error)) {
