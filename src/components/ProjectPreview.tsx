@@ -6,7 +6,7 @@ type Props = {
 }
 
 const ProjectPreview = ({ project }: Props) => {
-	const { description, name, client, _id } = project
+	const { name, client, _id } = project
 
 	return (
 		<div className='border-b p-5 flex items-center'>

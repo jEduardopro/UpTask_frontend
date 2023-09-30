@@ -11,6 +11,7 @@ import Projects from './pages/Projects'
 import NewProject from './pages/NewProject'
 import { ProjectsProvider } from './context/ProjectsProvider'
 import Project from './pages/Project'
+import EditProject from './pages/EditProject'
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
 							<Route index element={<Projects/>} />
 							<Route path='create-project' element={<NewProject/>} />
 							<Route path=':id' element={<Project/>} />
+							<Route path=':id/edit' element={<EditProject/>} />
 						</Route>
 						<Route path="*" element={<h1>Not Found</h1>} />
 					</Routes>
