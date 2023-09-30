@@ -6,5 +6,5 @@ export type ProjectPayload = {
 }
 
 export type Project = ProjectPayload & {
-	id: string;
+	_id: string;
 }

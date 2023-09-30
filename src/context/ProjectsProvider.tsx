@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import api from '../services/Api'
 import { Project, ProjectPayload } from "../types";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +35,26 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [projects, setProjects] = useState<Project[]>(initialValue.projects)
 	const [message, setMessage] = useState<Message>({ error: false, text: '' })
 	const navigate = useNavigate()
+
+	useEffect(() => {
+		const getProjects = async () => {
+			try {
+				const token = localStorage.getItem('token')
+				if (!token) return
+				const config = {
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`
+					}
+				}
+				const { data } = await api.get('/projects', config)
+				setProjects(data)
+			} catch (error) {
+				console.log(error);				
+			}
+		}
+		getProjects()
+	}, [])
 
 	const showMessage = (message: Message) => {
 		setMessage(message)

@@ -10,6 +10,7 @@ import Layout from './layouts/Layout'
 import Projects from './pages/Projects'
 import NewProject from './pages/NewProject'
 import { ProjectsProvider } from './context/ProjectsProvider'
+import Project from './pages/Project'
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
 						<Route path='/projects' element={<Layout/>}>
 							<Route index element={<Projects/>} />
 							<Route path='create-project' element={<NewProject/>} />
+							<Route path=':id' element={<Project/>} />
 						</Route>
 						<Route path="*" element={<h1>Not Found</h1>} />
 					</Routes>
