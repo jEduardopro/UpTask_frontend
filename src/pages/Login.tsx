@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import Message from "../components/Message"
 import api from '../services/Api'
 import handleError from "../utils/error.handle"
+import useAuth from "../hooks/useAuth"
 
 const Login = () => {
 	const [email, setEmail] = useState('')
@@ -11,6 +12,8 @@ const Login = () => {
 		error: false,
 		text: ''
 	})
+
+	const {setAuth} = useAuth()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -26,7 +29,8 @@ const Login = () => {
 		try {
 			const { data } = await api.post('/users/login', { email, password })
 			localStorage.setItem('token', data.token)
-			setMessage({error : false, text: ''})
+			setMessage({ error: false, text: '' })
+			setAuth(data)
 		} catch (error) {
 			setMessage({error : true, text: handleError(error)})
 		}
