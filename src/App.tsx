@@ -6,6 +6,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import ConfirmAccount from './pages/ConfirmAccount'
 import {AuthProvider} from './context/AuthProvider'
+import Layout from './layouts/Layout'
+import Projects from './pages/Projects'
 
 function App() {
 
@@ -19,6 +21,9 @@ function App() {
 						<Route path='forgot-password' element={<ForgotPassword />} />
 						<Route path='forgot-password/:token' element={<ResetPassword />} />
 						<Route path='confirm-account/:id' element={<ConfirmAccount />} />
+					</Route>
+					<Route path='/projects' element={<Layout/>}>
+						<Route index element={<Projects/>} />
 					</Route>
 					<Route path="*" element={<h1>Not Found</h1>} />
 				</Routes>
