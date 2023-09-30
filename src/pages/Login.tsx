@@ -1,10 +1,46 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
+import Message from "../components/Message"
+import api from '../services/Api'
+import handleError from "../utils/error.handle"
 
 const Login = () => {
+	const [email, setEmail] = useState('')
+	const [password, setPassword] = useState('')
+	const [message, setMessage] = useState({
+		error: false,
+		text: ''
+	})
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+
+		if (!email || !password) {
+			setMessage({
+				error: true,
+				text: 'Please fill all the fields'
+			})
+			return
+		}
+
+		try {
+			const { data } = await api.post('/users/login', { email, password })
+			localStorage.setItem('token', data.token)
+			setMessage({error : false, text: ''})
+		} catch (error) {
+			setMessage({error : true, text: handleError(error)})
+		}
+	}
+
+	const {text} = message
+
 	return (
 		<>
 			<h1 className="text-sky-600 font-black text-6xl">Sign in and manage your projects</h1>
-			<form className="bg-white shadow rounded-lg my-10 px-8 py-10">
+
+			{text && (<Message message={message} />)}
+
+			<form className="bg-white shadow rounded-lg my-10 px-8 py-10" onSubmit={handleSubmit}>
 				<div className="my-5">
 					<label htmlFor="email" className="uppercase text-slate-600 block text-lg font-bold">Email</label>
 					<input
@@ -12,6 +48,8 @@ const Login = () => {
 						type="email"
 						placeholder="Email"
 						className="w-full mt-1 p-2 border border-slate-200 rounded bg-slate-50 outline-none"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 					/>
 				</div>
 				<div className="my-5">
@@ -21,6 +59,8 @@ const Login = () => {
 						type="password"
 						placeholder="Password"
 						className="w-full mt-1 p-2 border border-slate-200 rounded bg-slate-50 outline-none"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</div>
 
