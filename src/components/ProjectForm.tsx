@@ -1,6 +1,7 @@
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import ProjectsContext from "../context/ProjectsProvider"
 import Message from "./Message"
+import { useParams } from "react-router-dom"
 
 const ProjectForm = () => {
 	const [name, setName] = useState('')
@@ -8,7 +9,18 @@ const ProjectForm = () => {
 	const [deadline, setDeadline] = useState('')
 	const [client, setClient] = useState('')
 
-	const { showMessage, message, submitProject } = useContext(ProjectsContext)
+	const { id } = useParams()
+	const { showMessage, message, submitProject, project } = useContext(ProjectsContext)
+
+	useEffect(() => {
+		if (id && project) {
+			setName(project.name)
+			setDescription(project.description)
+			setDeadline(project.deadline.split('T')[0])
+			setClient(project.client)
+		}
+	}, [id])
+
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -18,7 +30,7 @@ const ProjectForm = () => {
 			return
 		}
 
-		await submitProject({ name, description, deadline, client })
+		await submitProject({ name, description, deadline, client }, id)
 		setName('')
 		setDescription('')
 		setDeadline('')
@@ -98,7 +110,7 @@ const ProjectForm = () => {
 				type="submit"
 				className="w-full bg-sky-600 text-white p-3 rounded-md hover:bg-sky-700 transition duration-300"
 			>
-				Create Project
+				{id ? 'Update Project' : 'Create Project'}
 			</button>
 
 		</form>

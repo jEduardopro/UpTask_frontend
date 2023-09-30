@@ -49,7 +49,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 					}
 				})
 				setAuth(data)
-				navigate('/projects')
+				// navigate('/projects')
 			} catch (error) {
 				console.log(error);				
 			}

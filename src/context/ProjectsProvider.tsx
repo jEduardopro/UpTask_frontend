@@ -17,7 +17,7 @@ export type ProjectsCtx = {
 	setProjects: (projects: Project[]) => void;
 	message: Message;
 	showMessage: (message: Message) => void;
-	submitProject: (project: ProjectPayload) => Promise<void>;
+	submitProject: (project: ProjectPayload, id?:string) => Promise<void>;
 	getProject: (id: string) => Promise<void>;
 	project: Project | null;
 	loading: boolean;
@@ -71,7 +71,15 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}, 3500)
 	}
 
-	const submitProject = async (project: ProjectPayload) => {
+	const submitProject = async (project: ProjectPayload, id?: string) => {
+		if (id) {
+			updateProject(project, id)
+		} else {
+			createProject(project)
+		}
+	}
+
+	const createProject = async (project: ProjectPayload) => {
 		try {
 			const token = localStorage.getItem('token')
 			if (!token) return
@@ -84,6 +92,29 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			const { data } = await api.post('/projects', project, config)
 			setProjects([...projects, data])
 			showMessage({ error: false, text: 'Project created successfully' })
+			setTimeout(() => {
+				showMessage({ error: false, text: '' })
+				navigate('/projects')
+			}, 1000);
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
+	const updateProject = async (project: ProjectPayload, id: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+			const { data } = await api.put(`/projects/${id}`, project, config)
+			
+			setProjects(projects.map(p => p._id === id ? data : p))
+			showMessage({ error: false, text: 'Project updated successfully' })
 			setTimeout(() => {
 				showMessage({ error: false, text: '' })
 				navigate('/projects')
