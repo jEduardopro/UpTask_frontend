@@ -21,6 +21,7 @@ export type ProjectsCtx = {
 	getProject: (id: string) => Promise<void>;
 	project: Project | null;
 	loading: boolean;
+	deleteProject: (id: string) => Promise<void>;
 }
 
 const initialValue = {
@@ -31,7 +32,8 @@ const initialValue = {
 	submitProject: async () => { },
 	getProject: async () => { },
 	project: null,
-	loading: true
+	loading: true,
+	deleteProject: async () => { }
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -143,6 +145,28 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		setLoading(false)
 	}
 
+	const deleteProject = async (id: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+			const { data } = await api.delete(`/projects/${id}`, config)
+			setProjects(projects.filter(p => p._id !== id))
+			setMessage({ error: false, text: data.message })
+			setTimeout(() => {
+				showMessage({ error: false, text: '' })
+				navigate('/projects')
+			}, 1000);
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -153,7 +177,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				submitProject,
 				getProject,
 				project,
-				loading
+				loading,
+				deleteProject
 			}}
 		>
 			{children}
