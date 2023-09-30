@@ -1,7 +1,8 @@
+import Message from "../components/Message"
+import api from '../services/Api'
+import handleError from '../utils/error.handle'
 import { FormEvent, useState } from "react"
 import { Link } from "react-router-dom"
-import Message from "../components/Message"
-import axios, { AxiosError } from 'axios'
 
 const Register = () => {
 	const [name, setName] = useState('')
@@ -39,19 +40,10 @@ const Register = () => {
 				email,
 				password
 			}
-			const {data} = await axios.post(`${import.meta.env.VITE_API_URL}/api/users`, payload)
+			const {data} = await api.post('/users', payload)
 			setMessage({ error: false, text: data.message })
-		} catch (error: unknown) {
-			if (!axios.isAxiosError(error)) {
-				setMessage({ error: true, text: 'Something went wrong' })
-				return
-			}
-			const axiosError = error as AxiosError<{ message: string }>
-			if (axiosError.response) {
-				setMessage({ error: true, text: axiosError.response.data.message })
-			} else {
-				setMessage({ error: true, text: axiosError.message })
-			}
+		} catch (error) {
+			setMessage({ error: true, text: handleError(error) })
 		}
 			
 	}

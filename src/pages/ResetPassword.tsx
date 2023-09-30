@@ -2,6 +2,8 @@ import axios, { AxiosError } from "axios"
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import Message from "../components/Message"
+import api from '../services/Api'
+import handleError from "../utils/error.handle"
 
 const ResetPassword = () => {
 	const {token} = useParams()
@@ -15,19 +17,10 @@ const ResetPassword = () => {
 
 	const verifyToken = async () => {
 		try {
-			await axios.get(`${import.meta.env.VITE_API_URL}/api/users/forgot-password/${token}`)
+			await api.get(`/users/forgot-password/${token}`)
 			setTokenVerified(true)
 		} catch (error) {
-			if (!axios.isAxiosError(error)) {
-				setMessage({ error: true, text: 'Something went wrong' })
-				return
-			}
-			const axiosError = error as AxiosError<{ message: string }>
-			if (axiosError.response) {
-				setMessage({ error: true, text: axiosError.response.data.message })
-			} else {
-				setMessage({ error: true, text: axiosError.message })
-			}
+			setMessage({ error: true, text: handleError(error) })
 		}
 	}
 
@@ -50,7 +43,6 @@ const ResetPassword = () => {
 
 		try {
 			const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/reset-password/${token}`, { password: newPassword })
-			console.log(data);
 			setMessage({ error: false, text: data.message })
 			setPasswordChanged(true)
 		} catch (error) {

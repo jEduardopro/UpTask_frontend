@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Message from '../components/Message'
-import axios, { AxiosError } from 'axios'
+import api from '../services/Api'
+import handleError from '../utils/error.handle'
 
 const ForgotPassword = () => {
 	const [email, setEmail] = useState('')
@@ -22,19 +23,10 @@ const ForgotPassword = () => {
 		}
 
 		try {
-			const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/forgot-password`, { email })			
+			const { data } = await api.post(`/users/forgot-password`, { email })			
 			setMessage({ error: false, text: data.message })
 		} catch (error) {
-			if (!axios.isAxiosError(error)) {
-				setMessage({ error: true, text: 'Something went wrong' })
-				return
-			}
-			const axiosError = error as AxiosError<{ message: string }>
-			if (axiosError.response) {
-				setMessage({ error: true, text: axiosError.response.data.message })
-			} else {
-				setMessage({ error: true, text: axiosError.message })
-			}
+			setMessage({ error: true, text: handleError(error) })
 		}
 	}
 
