@@ -2,6 +2,7 @@ import { ReactNode, createContext, useEffect, useState } from "react";
 import api from '../services/Api'
 import { Project, ProjectPayload } from "../types";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 interface ProjectsProviderProps {
 	children: ReactNode;
@@ -46,11 +47,14 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [loading, setLoading] = useState(true)
 	const navigate = useNavigate()
 
-	useEffect(() => {
+	const {auth} = useAuth()
+
+	useEffect(() => {		
 		const getProjects = async () => {
 			try {
 				const token = localStorage.getItem('token')
 				if (!token) return
+				
 				const config = {
 					headers: {
 						'Content-Type': 'application/json',
@@ -64,7 +68,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			}
 		}
 		getProjects()
-	}, [])
+	}, [auth])
 
 	const showMessage = (message: Message) => {
 		setMessage(message)

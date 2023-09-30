@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Message from "../components/Message"
 import api from '../services/Api'
 import handleError from "../utils/error.handle"
@@ -12,6 +12,8 @@ const Login = () => {
 		error: false,
 		text: ''
 	})
+
+	const navigate = useNavigate()
 
 	const {setAuth} = useAuth()
 
@@ -31,6 +33,7 @@ const Login = () => {
 			localStorage.setItem('token', data.token)
 			setMessage({ error: false, text: '' })
 			setAuth(data)
+			navigate('/projects')
 		} catch (error) {
 			setMessage({error : true, text: handleError(error)})
 		}
