@@ -1,5 +1,6 @@
-import { ReactNode, createContext, useState } from 'react'
+import { ReactNode, createContext, useEffect, useState } from 'react'
 import { AuthUser } from '../types';
+import api from '../services/Api'
 
 export type AuthCtx = {
 	auth: AuthUser;
@@ -24,6 +25,27 @@ const AuthContext = createContext<AuthCtx>(initialValue)
 const AuthProvider = ({ children }: AuthProviderProps) => {
 
 	const [auth, setAuth] = useState(initialValue.auth)
+
+	useEffect(() => {
+		const token = localStorage.getItem('token')
+		if (!token) return
+		
+		const autheticateUser = async () => {
+			try {
+				const { data } = await api.get('/users/profile', {
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`
+					}
+				})
+				setAuth(data)				
+			} catch (error) {
+				console.log(error);				
+			}
+		}
+
+		autheticateUser()
+	}, [])
 
 	return (
 		<AuthContext.Provider
