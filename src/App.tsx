@@ -9,26 +9,29 @@ import {AuthProvider} from './context/AuthProvider'
 import Layout from './layouts/Layout'
 import Projects from './pages/Projects'
 import NewProject from './pages/NewProject'
+import { ProjectsProvider } from './context/ProjectsProvider'
 
 function App() {
 
   return (
 		<BrowserRouter>
 			<AuthProvider>
-				<Routes>
-					<Route path="/" element={<AuthLayout />} >
-						<Route index element={<Login />} />
-						<Route path='register' element={<Register />} />
-						<Route path='forgot-password' element={<ForgotPassword />} />
-						<Route path='forgot-password/:token' element={<ResetPassword />} />
-						<Route path='confirm-account/:id' element={<ConfirmAccount />} />
-					</Route>
-					<Route path='/projects' element={<Layout/>}>
-						<Route index element={<Projects/>} />
-						<Route path='create-project' element={<NewProject/>} />
-					</Route>
-					<Route path="*" element={<h1>Not Found</h1>} />
-				</Routes>
+				<ProjectsProvider>
+					<Routes>
+						<Route path="/" element={<AuthLayout />} >
+							<Route index element={<Login />} />
+							<Route path='register' element={<Register />} />
+							<Route path='forgot-password' element={<ForgotPassword />} />
+							<Route path='forgot-password/:token' element={<ResetPassword />} />
+							<Route path='confirm-account/:id' element={<ConfirmAccount />} />
+						</Route>
+						<Route path='/projects' element={<Layout/>}>
+							<Route index element={<Projects/>} />
+							<Route path='create-project' element={<NewProject/>} />
+						</Route>
+						<Route path="*" element={<h1>Not Found</h1>} />
+					</Routes>
+				</ProjectsProvider>					
 			</AuthProvider>
     </BrowserRouter>
   )
