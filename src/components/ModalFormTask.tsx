@@ -1,13 +1,31 @@
 import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import useProjects from '../hooks/useProjects'
+import Message from './Message'
+import { useParams } from 'react-router-dom'
 
 const ModalFormTask = () => {
 	const [name, setName] = useState('')
 	const [description, setDescription] = useState('')
+	const [deadline, setDeadline] = useState('')
 	const [priority, setPriority] = useState('low')
 
-	const {modalFormTask, handleModalTask} = useProjects()
+	const {id} = useParams()
+
+	const { modalFormTask, handleModalTask, showMessage, message, submitTask} = useProjects()
+	
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault()
+		if ([name, description, deadline, priority].includes('')) {
+			console.log('Hay campos vacios')
+			showMessage({ error: true, text: 'All fields are required' })
+			return
+		}
+
+		submitTask({ name, description, deadline, priority }, id!)
+	}
+
+	const {text} = message
 
 	return (
 		<Transition.Root show={modalFormTask} as={Fragment}>
@@ -64,7 +82,9 @@ const ModalFormTask = () => {
 										Create Task
 									</Dialog.Title>
 
-									<form className='my-10'>
+									{text && <Message message={message} />}
+
+									<form className='my-10' onSubmit={handleSubmit}>
 										<div className='mb-5'>
 											<label htmlFor="name" className='text-gray-700 text-sm font-bold'>Name</label>
 											<input
@@ -84,6 +104,16 @@ const ModalFormTask = () => {
 												className='border w-full p-2 mt-1 placeholder-gray-400 rounded-md'
 												value={description}
 												onChange={e => setDescription(e.target.value)}
+											/>
+										</div>
+										<div className='mb-5'>
+											<label htmlFor="deadline" className='text-gray-700 text-sm font-bold'>Deadline</label>
+											<input
+												type='date'
+												id='deadline'
+												className='border w-full p-2 mt-1 placeholder-gray-400 rounded-md'
+												value={deadline}
+												onChange={e => setDeadline(e.target.value)}
 											/>
 										</div>
 										<div className='mb-5'>

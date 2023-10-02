@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import api from '../services/Api'
-import { Project, ProjectPayload } from "../types";
+import { Project, ProjectPayload, TaskPayload } from "../types";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
@@ -25,6 +25,7 @@ export type ProjectsCtx = {
 	deleteProject: (id: string) => Promise<void>;
 	modalFormTask: boolean;
 	handleModalTask: () => void;
+	submitTask: (task: TaskPayload, projectId: string) => Promise<void>;
 }
 
 const initialValue = {
@@ -38,7 +39,8 @@ const initialValue = {
 	loading: true,
 	deleteProject: async () => { },
 	modalFormTask: false,
-	handleModalTask: () => { }
+	handleModalTask: () => { },
+	submitTask: async () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -180,6 +182,25 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		setModalFormTask(!modalFormTask)
 	}
 
+	const submitTask = async (task: TaskPayload, projectId: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			const { data } = await api.post(`/tasks`, {...task, project: projectId}, config)
+			console.log(data);
+			
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -193,7 +214,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				loading,
 				deleteProject,
 				modalFormTask,
-				handleModalTask
+				handleModalTask,
+				submitTask
 			}}
 		>
 			{children}
