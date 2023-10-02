@@ -23,6 +23,8 @@ export type ProjectsCtx = {
 	project: Project | null;
 	loading: boolean;
 	deleteProject: (id: string) => Promise<void>;
+	modalFormTask: boolean;
+	handleModalTask: () => void;
 }
 
 const initialValue = {
@@ -34,7 +36,9 @@ const initialValue = {
 	getProject: async () => { },
 	project: null,
 	loading: true,
-	deleteProject: async () => { }
+	deleteProject: async () => { },
+	modalFormTask: false,
+	handleModalTask: () => { }
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -45,6 +49,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [message, setMessage] = useState<Message>({ error: false, text: '' })
 	const [project, setProject] = useState<Project | null>(null)
 	const [loading, setLoading] = useState(true)
+	const [modalFormTask, setModalFormTask] = useState(false)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -171,6 +176,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 	}
 
+	const handleModalTask = () => {
+		setModalFormTask(!modalFormTask)
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -182,7 +191,9 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				getProject,
 				project,
 				loading,
-				deleteProject
+				deleteProject,
+				modalFormTask,
+				handleModalTask
 			}}
 		>
 			{children}
