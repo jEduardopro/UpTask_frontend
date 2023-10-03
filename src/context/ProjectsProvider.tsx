@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import api from '../services/Api'
-import { Project, ProjectPayload, TaskPayload } from "../types";
+import { Project, ProjectPayload, Task, TaskPayload } from "../types";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
@@ -25,7 +25,9 @@ export type ProjectsCtx = {
 	deleteProject: (id: string) => Promise<void>;
 	modalFormTask: boolean;
 	handleModalTask: () => void;
-	submitTask: (task: TaskPayload, projectId: string) => Promise<void>;
+	submitTask: (task: TaskPayload, projectId: string, id: string|null) => Promise<void>;
+	handleModalEditTask: (task: Task) => void;
+	task: Task | null;
 }
 
 const initialValue = {
@@ -41,6 +43,8 @@ const initialValue = {
 	modalFormTask: false,
 	handleModalTask: () => { },
 	submitTask: async () => { },
+	handleModalEditTask: () => { },
+	task: null
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -52,6 +56,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [project, setProject] = useState<Project | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [modalFormTask, setModalFormTask] = useState(false)
+	const [task, setTask] = useState<Task|null>(initialValue.task)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -180,9 +185,18 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 
 	const handleModalTask = () => {
 		setModalFormTask(!modalFormTask)
+		setTask(null)
 	}
 
-	const submitTask = async (task: TaskPayload, projectId: string) => {
+	const submitTask = async (task: TaskPayload, projectId: string, id: string|null) => {
+		if (id) {
+			await updateTask(task, projectId, id)
+		} else {
+			await createTask(task, projectId)
+		}
+	}
+
+	const createTask = async (task: TaskPayload, projectId: string) => {
 		try {
 			const token = localStorage.getItem('token')
 			if (!token) return
@@ -194,11 +208,43 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			}
 
 			const { data } = await api.post(`/tasks`, {...task, project: projectId}, config)
-			console.log(data);
 			
+			const projectUpdated = { ...project! }
+			projectUpdated.tasks = [...project!.tasks, data]			
+			setProject(projectUpdated)
+			setMessage({ error: false, text: '' })
+			setModalFormTask(false)
 		} catch (error) {
 			console.log(error);			
 		}
+	}
+
+	const updateTask = async (task: TaskPayload, projectId: string, id: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			const { data } = await api.put(`/tasks/${id}`, {...task, project: projectId}, config)
+			
+			const projectUpdated = { ...project! }
+			projectUpdated.tasks = project!.tasks.map(t => t._id === id ? data : t)			
+			setProject(projectUpdated)
+			setMessage({ error: false, text: '' })
+			setModalFormTask(false)
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
+	const handleModalEditTask = (task: Task) => {
+		setTask(task)
+		setModalFormTask(true)
 	}
 
 	return (
@@ -215,7 +261,9 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				deleteProject,
 				modalFormTask,
 				handleModalTask,
-				submitTask
+				submitTask,
+				handleModalEditTask,
+				task
 			}}
 		>
 			{children}

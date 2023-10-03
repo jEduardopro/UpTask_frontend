@@ -5,24 +5,44 @@ import Message from './Message'
 import { useParams } from 'react-router-dom'
 
 const ModalFormTask = () => {
+	const [id, setId] = useState<string | null>(null)
 	const [name, setName] = useState('')
 	const [description, setDescription] = useState('')
 	const [deadline, setDeadline] = useState('')
 	const [priority, setPriority] = useState('low')
 
-	const {id} = useParams()
+	const params = useParams()
 
-	const { modalFormTask, handleModalTask, showMessage, message, submitTask} = useProjects()
+	const { modalFormTask, handleModalTask, showMessage, message, submitTask, task } = useProjects()
 	
-	const handleSubmit = (e: React.FormEvent) => {
+	useEffect(() => {
+		if (task) {
+			setId(task._id)
+			setName(task.name)
+			setDescription(task.description)
+			setDeadline(task.deadline.split('T')[0])
+			setPriority(task.priority)
+			return
+		}
+		setId(null)
+		setName('')
+		setDescription('')
+		setDeadline('')
+		setPriority('low')
+	}, [task])
+	
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if ([name, description, deadline, priority].includes('')) {
-			console.log('Hay campos vacios')
 			showMessage({ error: true, text: 'All fields are required' })
 			return
 		}
 
-		submitTask({ name, description, deadline, priority }, id!)
+		await submitTask({ name, description, deadline, priority }, params.id!, id)
+		setName('')
+		setDescription('')
+		setDeadline('')
+		setPriority('low')
 	}
 
 	const {text} = message
@@ -79,7 +99,7 @@ const ModalFormTask = () => {
 							<div className="sm:flex sm:items-start">
 								<div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
 									<Dialog.Title as="h3" className="text-lg leading-6 font-bold text-gray-900">
-										Create Task
+										{id? 'Edit Task' : 'New Task'}
 									</Dialog.Title>
 
 									{text && <Message message={message} />}
@@ -132,7 +152,7 @@ const ModalFormTask = () => {
 
 										<input
 											type="submit"
-											value='Create Task'
+											value={id? 'Update Task' : 'Create Task'}
 											className='bg-sky-600 hover:bg-sky-700 cursor-pointer transition-colors w-full p-2 text-white uppercase font-bold rounded-md'
 										/>
 									</form>
