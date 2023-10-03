@@ -5,6 +5,7 @@ export type TaskPayload = {
 	priority: string;
 }
 
-export type Task = {
-	id: string
+export type Task = TaskPayload & {
+	_id: string;
+	status: boolean;
 }
