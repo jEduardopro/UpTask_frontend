@@ -3,10 +3,12 @@ import useProjects from '../hooks/useProjects'
 import { useEffect } from 'react'
 import ModalFormTask from '../components/ModalFormTask'
 import Task from '../components/Task'
+import ModalDeleteTask from '../components/ModalDeleteTask'
+import Message from '../components/Message'
 
 const Project = () => {
 	const { id } = useParams()
-	const { getProject, project, loading, handleModalTask } = useProjects()
+	const { getProject, project, loading, handleModalTask, message } = useProjects()
 	
 	useEffect(() => {
 		getProject(id!)
@@ -15,6 +17,8 @@ const Project = () => {
 	if (loading) return <div>Loading...</div>
 
 	if (!project) return <div>Project not found</div>
+
+	const {text} = message
 
 	return (
 		<>
@@ -48,6 +52,13 @@ const Project = () => {
 
 			<p className='font-bold text-xl mt-10'>Tasks</p>
 
+			<div className='flex justify-center'>
+				<div className='w-full md:w-1/3 lg:w-1/4'>
+					{text && (<Message message={message} />)}
+				</div>
+			</div>
+
+
 			<div className='bg-white shadow mt-10 rounded-lg'>
 				{
 					project.tasks.length ? 
@@ -61,6 +72,7 @@ const Project = () => {
 			</div>
 
 			<ModalFormTask />
+			<ModalDeleteTask />
 		</>
 	)
 }

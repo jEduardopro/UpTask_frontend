@@ -7,7 +7,7 @@ type Props = {
 }
 
 const Task = ({ task }: Props) => {
-	const {handleModalEditTask} = useProjects()
+	const {handleModalEditTask, handleModalDeleteTask} = useProjects()
 	const { name, description, deadline, priority, status } = task
 	
 	return (
@@ -43,6 +43,7 @@ const Task = ({ task }: Props) => {
 				}
 				<button
 					className='bg-red-600 px-4 py-3 text-sm rounded-lg text-white'
+					onClick={() => handleModalDeleteTask(task)}
 				>
 					Delete
 				</button>

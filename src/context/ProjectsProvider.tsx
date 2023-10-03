@@ -28,6 +28,9 @@ export type ProjectsCtx = {
 	submitTask: (task: TaskPayload, projectId: string, id: string|null) => Promise<void>;
 	handleModalEditTask: (task: Task) => void;
 	task: Task | null;
+	handleModalDeleteTask: (task: Task|null) => void;
+	modalDeleteTask: boolean;
+	deleteTask: () => Promise<void>;
 }
 
 const initialValue = {
@@ -44,7 +47,10 @@ const initialValue = {
 	handleModalTask: () => { },
 	submitTask: async () => { },
 	handleModalEditTask: () => { },
-	task: null
+	task: null,
+	handleModalDeleteTask: () => { },
+	modalDeleteTask: false,
+	deleteTask: async () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -56,7 +62,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [project, setProject] = useState<Project | null>(null)
 	const [loading, setLoading] = useState(true)
 	const [modalFormTask, setModalFormTask] = useState(false)
-	const [task, setTask] = useState<Task|null>(initialValue.task)
+	const [task, setTask] = useState<Task | null>(initialValue.task)
+	const [modalDeleteTask, setModalDeleteTask] = useState(false)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -247,6 +254,37 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		setModalFormTask(true)
 	}
 
+	const handleModalDeleteTask = (task: Task|null) => {
+		setTask(task)
+		setModalDeleteTask(!modalDeleteTask)
+	}
+
+	const deleteTask = async () => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+			const { data } = await api.delete(`/tasks/${task?._id}`, config)
+			setMessage({ error: false, text: data.message })
+			
+			const projectUpdated = { ...project! }
+			projectUpdated.tasks = project!.tasks.filter(t => t._id !== task?._id)
+			setProject(projectUpdated)
+			setModalDeleteTask(false)
+			setTask(null)
+			setTimeout(() => {
+				setMessage({ error: false, text: '' })
+			}, 2500);
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -263,7 +301,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				handleModalTask,
 				submitTask,
 				handleModalEditTask,
-				task
+				task,
+				handleModalDeleteTask,
+				modalDeleteTask,
+				deleteTask
 			}}
 		>
 			{children}
