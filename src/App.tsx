@@ -12,6 +12,7 @@ import NewProject from './pages/NewProject'
 import { ProjectsProvider } from './context/ProjectsProvider'
 import Project from './pages/Project'
 import EditProject from './pages/EditProject'
+import NewCollaborator from './pages/NewCollaborator'
 
 function App() {
 
@@ -30,6 +31,7 @@ function App() {
 						<Route path='/projects' element={<Layout/>}>
 							<Route index element={<Projects/>} />
 							<Route path='create-project' element={<NewProject/>} />
+							<Route path=':id/collaborators' element={<NewCollaborator/>} />
 							<Route path=':id' element={<Project/>} />
 							<Route path=':id/edit' element={<EditProject/>} />
 						</Route>

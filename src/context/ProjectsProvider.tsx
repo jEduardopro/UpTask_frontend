@@ -31,6 +31,7 @@ export type ProjectsCtx = {
 	handleModalDeleteTask: (task: Task|null) => void;
 	modalDeleteTask: boolean;
 	deleteTask: () => Promise<void>;
+	submitCollaborator: (email: string) => Promise<void>;
 }
 
 const initialValue = {
@@ -51,6 +52,7 @@ const initialValue = {
 	handleModalDeleteTask: () => { },
 	modalDeleteTask: false,
 	deleteTask: async () => { },
+	submitCollaborator: async () => { }
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -285,6 +287,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 	}
 
+	const submitCollaborator = async (email: string) => {
+		
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -304,7 +310,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				task,
 				handleModalDeleteTask,
 				modalDeleteTask,
-				deleteTask
+				deleteTask,
+				submitCollaborator
 			}}
 		>
 			{children}
