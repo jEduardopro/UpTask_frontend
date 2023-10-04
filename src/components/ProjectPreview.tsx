@@ -11,7 +11,7 @@ const ProjectPreview = ({ project }: Props) => {
 	const { name, client, _id, creator } = project
 
 	return (
-		<div className='border-b p-5 flex items-center justify-between'>
+		<div className='border-b p-5 flex flex-col md:flex-row items-center justify-between'>
 			<div className='flex items-center gap-2'>
 				<p className='flex-1'>
 					{name}

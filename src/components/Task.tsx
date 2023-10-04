@@ -23,7 +23,7 @@ const Task = ({ task }: Props) => {
 					<p className='text-xs bg-green-600 text-white uppercase p-1 rounded-lg'>completed by: {task.completed.name}</p>
 				)}
 			</div>
-			<div className='flex gap-2'>
+			<div className='flex flex-col lg:flex-row gap-2'>
 				{admin && (
 					<button
 						className='bg-indigo-600 px-4 py-3 text-sm rounded-lg text-white'
