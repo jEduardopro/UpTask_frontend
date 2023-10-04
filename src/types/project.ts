@@ -1,4 +1,4 @@
-import { Task } from ".";
+import { Task, User } from ".";
 
 export type ProjectPayload = {
 	name: string;
@@ -10,4 +10,5 @@ export type ProjectPayload = {
 export type Project = ProjectPayload & {
 	_id: string;
 	tasks: Task[];
+	collaborators: User[];
 }

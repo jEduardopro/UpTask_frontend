@@ -35,6 +35,9 @@ export type ProjectsCtx = {
 	submitCollaborator: (email: string) => Promise<void>;
 	collaborator: User | null;
 	addCollaborator: (email: string) => Promise<void>;
+	modalDeleteCollaborator: boolean;
+	handleModalDeleteCollaborator: (collaborator: User | null) => void;
+	deleteCollaborator: () => Promise<void>;
 }
 
 const initialValue = {
@@ -58,6 +61,9 @@ const initialValue = {
 	submitCollaborator: async () => { },
 	collaborator: null,
 	addCollaborator: async () => { },
+	modalDeleteCollaborator: false,
+	handleModalDeleteCollaborator: () => { },
+	deleteCollaborator: async () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -71,7 +77,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [modalFormTask, setModalFormTask] = useState(false)
 	const [task, setTask] = useState<Task | null>(initialValue.task)
 	const [modalDeleteTask, setModalDeleteTask] = useState(false)
-	const [collaborator, setCollaborator] = useState<User|null>(null)
+	const [collaborator, setCollaborator] = useState<User | null>(null)
+	const [modalDeleteCollaborator, setModalDeleteCollaborator] = useState(false)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -340,6 +347,40 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 	}
 
+	const handleModalDeleteCollaborator = (collaborator: User|null) => {
+		setModalDeleteCollaborator(!modalDeleteCollaborator)
+		setCollaborator(collaborator)
+	}
+
+	const deleteCollaborator = async () => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			const { data } = await api.delete(`projects/${project?._id}/remove-collaborator/${collaborator?._id}`, config)
+
+			const projectUpdated = { ...project! }
+			projectUpdated.collaborators = project!.collaborators.filter(c => c._id !== collaborator?._id)
+			setProject(projectUpdated)
+
+			setMessage({ error: false, text: data.message })
+			setCollaborator(null)
+			setModalDeleteCollaborator(false)
+			setTimeout(() => {
+				setMessage({ error: false, text: '' })
+			}, 2500);
+		} catch (error) {
+			console.log(error);	
+			setMessage({ error: true, text: handleError(error) })
+		}
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -362,7 +403,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				deleteTask,
 				submitCollaborator,
 				collaborator,
-				addCollaborator
+				addCollaborator,
+				modalDeleteCollaborator,
+				handleModalDeleteCollaborator,
+				deleteCollaborator
 			}}
 		>
 			{children}
