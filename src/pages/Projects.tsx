@@ -1,13 +1,17 @@
-import { useContext } from "react"
-import ProjectsContext from "../context/ProjectsProvider"
 import ProjectPreview from "../components/ProjectPreview";
+import Message from '../components/Message'
+import useProjects from "../hooks/useProjects";
 
 const Projects = () => {
-	const { projects } = useContext(ProjectsContext)
+	const { projects, message } = useProjects()
+	
+	const {text} = message
 	
 	return (
 		<>
 			<h1 className='text-4xl font-black'>Projects</h1>
+
+			{text && <Message message={message} />}
 
 			<div className="bg-white shadow mt-10 rounded-lg">
 				{projects.length ?

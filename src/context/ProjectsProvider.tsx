@@ -182,7 +182,11 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			setMessage({ error: false, text: '' })
 		} catch (error) {
 			console.log(error);
+			navigate('/projects')
 			setMessage({ error: true, text: handleError(error) })
+			setTimeout(() => {
+				setMessage({ error: false, text: '' })
+			}, 2500);
 		}
 		setLoading(false)
 	}
