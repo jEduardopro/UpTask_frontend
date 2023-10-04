@@ -1,3 +1,4 @@
+import useAdmin from '../hooks/useAdmin';
 import useProjects from '../hooks/useProjects';
 import { Task as TaskType } from '../types'
 import { formatDate } from '../utils/formatDate';
@@ -7,8 +8,9 @@ type Props = {
 }
 
 const Task = ({ task }: Props) => {
-	const {handleModalEditTask, handleModalDeleteTask} = useProjects()
-	const { name, description, deadline, priority, status } = task
+	const {handleModalEditTask, handleModalDeleteTask, toggleTaskStatus} = useProjects()
+	const { name, description, deadline, priority, status} = task
+	const admin = useAdmin()
 	
 	return (
 		<div className='border-b p-5 flex justify-between items-center'>
@@ -19,34 +21,31 @@ const Task = ({ task }: Props) => {
 				<p className='text-gray-600'>Priority: {priority}</p>
 			</div>
 			<div className='flex gap-2'>
-				<button
-					className='bg-indigo-600 px-4 py-3 text-sm rounded-lg text-white'
-					onClick={() => handleModalEditTask(task)}
-				>
-					Edit
-				</button>
-				{
-					status ? (
-						<button
-							className='bg-sky-600 px-4 py-3 text-sm rounded-lg text-white'
-						>
-							Complete
-						</button>
+				{admin && (
+					<button
+						className='bg-indigo-600 px-4 py-3 text-sm rounded-lg text-white'
+						onClick={() => handleModalEditTask(task)}
+					>
+						Edit
+					</button>
+				)}
 
-					) : (
-						<button
-							className='bg-gray-600 px-4 py-3 text-sm rounded-lg text-white'
-						>
-							Incomplete
-						</button>							
-					)
-				}
 				<button
-					className='bg-red-600 px-4 py-3 text-sm rounded-lg text-white'
-					onClick={() => handleModalDeleteTask(task)}
+					className={`${status ? 'bg-sky-600' : 'bg-gray-600'} px-4 py-3 text-sm rounded-lg text-white`}
+					onClick={() => toggleTaskStatus(task._id)}
 				>
-					Delete
+					{status ? 'Complete' : 'Incomplete'}
 				</button>
+					
+				{admin && (
+					<button
+						className='bg-red-600 px-4 py-3 text-sm rounded-lg text-white'
+						onClick={() => handleModalDeleteTask(task)}
+					>
+						Delete
+					</button>
+
+				)}
 			</div>
 		</div>
 	)

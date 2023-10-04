@@ -9,6 +9,7 @@ export type ProjectPayload = {
 
 export type Project = ProjectPayload & {
 	_id: string;
+	creator: string;
 	tasks: Task[];
 	collaborators: User[];
 }

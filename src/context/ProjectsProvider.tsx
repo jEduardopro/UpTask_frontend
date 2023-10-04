@@ -38,6 +38,7 @@ export type ProjectsCtx = {
 	modalDeleteCollaborator: boolean;
 	handleModalDeleteCollaborator: (collaborator: User | null) => void;
 	deleteCollaborator: () => Promise<void>;
+	toggleTaskStatus: (id: string) => Promise<void>;
 }
 
 const initialValue = {
@@ -64,6 +65,7 @@ const initialValue = {
 	modalDeleteCollaborator: false,
 	handleModalDeleteCollaborator: () => { },
 	deleteCollaborator: async () => { },
+	toggleTaskStatus: async () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -177,6 +179,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			}
 			const { data } = await api.get(`/projects/${id}`, config)
 			setProject(data)
+			setMessage({ error: false, text: '' })
 		} catch (error) {
 			console.log(error);
 			setMessage({ error: true, text: handleError(error) })
@@ -381,6 +384,29 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 	}
 
+	const toggleTaskStatus = async (id: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			const { data } = await api.post(`tasks/${id}/change-status`, {}, config)
+
+			const projectUpdated = { ...project! }
+			projectUpdated.tasks = project!.tasks.map(t => t._id === id ? data : t)
+			setProject(projectUpdated)
+			setTask(null)
+			setMessage({ error: false, text: '' })
+		} catch (error) {
+			console.log(error);			
+		}
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -406,7 +432,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				addCollaborator,
 				modalDeleteCollaborator,
 				handleModalDeleteCollaborator,
-				deleteCollaborator
+				deleteCollaborator,
+				toggleTaskStatus
 			}}
 		>
 			{children}
