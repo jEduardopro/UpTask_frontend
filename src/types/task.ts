@@ -1,3 +1,5 @@
+import { User } from ".";
+
 export type TaskPayload = {
 	name: string;
 	description: string;
@@ -8,4 +10,5 @@ export type TaskPayload = {
 export type Task = TaskPayload & {
 	_id: string;
 	status: boolean;
+	completed: User
 }
