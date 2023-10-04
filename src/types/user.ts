@@ -3,3 +3,7 @@ export type AuthUser = {
 	name: string;
 	email: string;
 }
+
+export type User = AuthUser & {
+	_id: string;
+}

@@ -1,8 +1,9 @@
 import { ReactNode, createContext, useEffect, useState } from "react";
 import api from '../services/Api'
-import { Project, ProjectPayload, Task, TaskPayload } from "../types";
+import { Project, ProjectPayload, Task, TaskPayload, User } from "../types";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import handleError from "../utils/error.handle";
 
 interface ProjectsProviderProps {
 	children: ReactNode;
@@ -32,6 +33,8 @@ export type ProjectsCtx = {
 	modalDeleteTask: boolean;
 	deleteTask: () => Promise<void>;
 	submitCollaborator: (email: string) => Promise<void>;
+	collaborator: User | null;
+	addCollaborator: (email: string) => Promise<void>;
 }
 
 const initialValue = {
@@ -52,7 +55,9 @@ const initialValue = {
 	handleModalDeleteTask: () => { },
 	modalDeleteTask: false,
 	deleteTask: async () => { },
-	submitCollaborator: async () => { }
+	submitCollaborator: async () => { },
+	collaborator: null,
+	addCollaborator: async () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -66,6 +71,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [modalFormTask, setModalFormTask] = useState(false)
 	const [task, setTask] = useState<Task | null>(initialValue.task)
 	const [modalDeleteTask, setModalDeleteTask] = useState(false)
+	const [collaborator, setCollaborator] = useState<User|null>(null)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -165,7 +171,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			const { data } = await api.get(`/projects/${id}`, config)
 			setProject(data)
 		} catch (error) {
-			console.log(error);			
+			console.log(error);
+			setMessage({ error: true, text: handleError(error) })
 		}
 		setLoading(false)
 	}
@@ -288,7 +295,49 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	}
 
 	const submitCollaborator = async (email: string) => {
-		
+		setLoading(true)
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+			const { data } = await api.post(`projects/collaborators`, {email}, config)
+			console.log(data);
+			setCollaborator(data)
+			setMessage({ error: false, text: '' })
+		} catch (error) {
+			console.log(error);
+			setMessage({ error: true, text: handleError(error) })
+		}
+		setLoading(false)
+	}
+
+	const addCollaborator = async (email: string) => {
+		try {
+			const token = localStorage.getItem('token')
+			if (!token) return
+			const config = {
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				}
+			}
+
+			const { data } = await api.post(`projects/${project?._id}/collaborators`, {email}, config)
+
+			setMessage({ error: false, text: data.message })
+			setCollaborator(null)
+			setTimeout(() => {
+				setMessage({ error: false, text: '' })
+			}, 2500);
+		} catch (error) {
+			console.log(error);	
+			setMessage({ error: true, text: handleError(error) })
+		}
 	}
 
 	return (
@@ -311,7 +360,9 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				handleModalDeleteTask,
 				modalDeleteTask,
 				deleteTask,
-				submitCollaborator
+				submitCollaborator,
+				collaborator,
+				addCollaborator
 			}}
 		>
 			{children}

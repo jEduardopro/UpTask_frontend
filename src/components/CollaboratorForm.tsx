@@ -5,7 +5,7 @@ import Message from './Message'
 const CollaboratorForm = () => {
 	const [email, setEmail] = useState('')
 
-	const { showMessage, message } = useProjects()
+	const { showMessage, message, submitCollaborator  } = useProjects()
 	
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
@@ -14,6 +14,8 @@ const CollaboratorForm = () => {
 			showMessage({ error: true, text: 'Email is required' })
 			return
 		}
+
+		submitCollaborator(email)
 	}
 
 	return (
