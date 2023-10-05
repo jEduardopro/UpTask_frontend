@@ -39,6 +39,9 @@ export type ProjectsCtx = {
 	handleModalDeleteCollaborator: (collaborator: User | null) => void;
 	deleteCollaborator: () => Promise<void>;
 	toggleTaskStatus: (id: string) => Promise<void>;
+	handleSearcher: () => void;
+	searcher: boolean;
+
 }
 
 const initialValue = {
@@ -66,6 +69,8 @@ const initialValue = {
 	handleModalDeleteCollaborator: () => { },
 	deleteCollaborator: async () => { },
 	toggleTaskStatus: async () => { },
+	handleSearcher: () => { },
+	searcher: false,
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -81,6 +86,7 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 	const [modalDeleteTask, setModalDeleteTask] = useState(false)
 	const [collaborator, setCollaborator] = useState<User | null>(null)
 	const [modalDeleteCollaborator, setModalDeleteCollaborator] = useState(false)
+	const [searcher, setSearcher] = useState(false)
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
@@ -414,6 +420,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 	}
 
+	const handleSearcher = () => {
+		setSearcher(!searcher)
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -440,7 +450,9 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				modalDeleteCollaborator,
 				handleModalDeleteCollaborator,
 				deleteCollaborator,
-				toggleTaskStatus
+				toggleTaskStatus,
+				handleSearcher,
+				searcher,
 			}}
 		>
 			{children}
