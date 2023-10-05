@@ -1,7 +1,6 @@
 import { ReactNode, createContext, useEffect, useState } from 'react'
 import { AuthUser } from '../types';
 import api from '../services/Api'
-import { useNavigate } from 'react-router-dom';
 
 export type AuthCtx = {
 	auth: AuthUser;
@@ -32,8 +31,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 	const [auth, setAuth] = useState(initialValue.auth)
 	const [loading, setLoading] = useState(true)
 
-	const navigate = useNavigate()
-
 	useEffect(() => {
 		const token = localStorage.getItem('token')
 		if (!token) {
@@ -51,7 +48,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 					}
 				})
 				setAuth(data)
-				// navigate('/projects')
 			} catch (error) {
 				console.log(error);				
 			}

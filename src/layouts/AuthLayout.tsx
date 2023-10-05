@@ -1,6 +1,11 @@
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 
 const AuthLayout = () => {
+	const token = localStorage.getItem('token')
+
+	if (token) return <Navigate to='projects' />
+	
+
 	return (
 		<>
 			<main className='container mx-auto mt-5 md:mt-20 p-5 md:flex md:justify-center'>

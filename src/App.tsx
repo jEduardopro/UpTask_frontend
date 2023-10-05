@@ -13,6 +13,7 @@ import { ProjectsProvider } from './context/ProjectsProvider'
 import Project from './pages/Project'
 import EditProject from './pages/EditProject'
 import NewCollaborator from './pages/NewCollaborator'
+import PageNotFound from './components/PageNotFound'
 
 function App() {
 
@@ -35,7 +36,7 @@ function App() {
 							<Route path=':id' element={<Project/>} />
 							<Route path=':id/edit' element={<EditProject/>} />
 						</Route>
-						<Route path="*" element={<h1>Not Found</h1>} />
+						<Route path="*" element={<PageNotFound/>} />
 					</Routes>
 				</ProjectsProvider>					
 			</AuthProvider>
