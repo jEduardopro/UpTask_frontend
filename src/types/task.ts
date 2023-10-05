@@ -1,4 +1,4 @@
-import { User } from ".";
+import { Project, User } from ".";
 
 export type TaskPayload = {
 	name: string;
@@ -10,5 +10,6 @@ export type TaskPayload = {
 export type Task = TaskPayload & {
 	_id: string;
 	status: boolean;
-	completed: User
+	completed: User;
+	project: string|Project;
 }

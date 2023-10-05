@@ -7,15 +7,53 @@ import ModalDeleteTask from '../components/ModalDeleteTask'
 import Collaborator from '../components/Collaborator'
 import ModalDeleteCollaborator from '../components/ModalDeleteCollaborator'
 import useAdmin from '../hooks/useAdmin'
+import io, { Socket } from 'socket.io-client'
+import { Task as TaskType } from '../types'
+
+let socket: Socket;
 
 const Project = () => {
 	const { id } = useParams()
-	const { getProject, project, loading, handleModalTask } = useProjects()
+	const { getProject, project, loading, handleModalTask, submitProjectTasks, updateProjectTask, deleteProjectTask, changeStatusTask} = useProjects()
 	const admin = useAdmin()
 	
 	useEffect(() => {
 		getProject(id!)
 	}, [])
+
+	useEffect(() => {
+		socket = io(import.meta.env.VITE_API_URL)
+		socket.emit('open project', id)
+	}, [])
+
+	useEffect(() => {
+		socket.on('task created', (task: TaskType) => {
+			if (task.project === project?._id) {
+				submitProjectTasks(task)			
+			}
+		})
+	
+		socket.on('task updated', (task: TaskType) => {
+			if (task.project === project?._id) {
+				updateProjectTask(task)			
+			}
+		})
+
+		socket.on('task deleted', (task: TaskType) => {
+			if (task.project === project?._id) {
+				deleteProjectTask(task)			
+			}
+		})
+
+		socket.on('task status changed', (task: TaskType) => {			
+			if (typeof task.project === 'string') {
+				return
+			}
+			if ('_id' in task.project && task.project._id === project?._id) {
+				changeStatusTask(task)			
+			}
+		})
+	})
 
 	if (loading) return <div>Loading...</div>
 

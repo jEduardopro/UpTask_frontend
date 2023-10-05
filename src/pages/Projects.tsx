@@ -4,7 +4,7 @@ import useProjects from "../hooks/useProjects";
 
 const Projects = () => {
 	const { projects, message } = useProjects()
-	
+
 	const {text} = message
 	
 	return (

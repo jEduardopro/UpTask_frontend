@@ -4,6 +4,9 @@ import { Project, ProjectPayload, Task, TaskPayload, User } from "../types";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import handleError from "../utils/error.handle";
+import io, { Socket } from 'socket.io-client'
+
+let socket: Socket;
 
 interface ProjectsProviderProps {
 	children: ReactNode;
@@ -41,7 +44,10 @@ export type ProjectsCtx = {
 	toggleTaskStatus: (id: string) => Promise<void>;
 	handleSearcher: () => void;
 	searcher: boolean;
-
+	submitProjectTasks: (task: Task) => void;
+	updateProjectTask: (task: Task) => void;
+	deleteProjectTask: (task: Task) => void;
+	changeStatusTask: (task: Task) => void;
 }
 
 const initialValue = {
@@ -71,6 +77,10 @@ const initialValue = {
 	toggleTaskStatus: async () => { },
 	handleSearcher: () => { },
 	searcher: false,
+	submitProjectTasks: () => { },
+	updateProjectTask: () => { },
+	deleteProjectTask: () => { },
+	changeStatusTask: () => { },
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -111,6 +121,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		}
 		getProjects()
 	}, [auth])
+
+	useEffect(() => {
+		socket = io(import.meta.env.VITE_API_URL)
+	}, [])
 
 	const showMessage = (message: Message) => {
 		setMessage(message)
@@ -245,11 +259,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 
 			const { data } = await api.post(`/tasks`, {...task, project: projectId}, config)
 			
-			const projectUpdated = { ...project! }
-			projectUpdated.tasks = [...project!.tasks, data]			
-			setProject(projectUpdated)
 			setMessage({ error: false, text: '' })
 			setModalFormTask(false)
+
+			socket.emit('new task', data)
 		} catch (error) {
 			console.log(error);			
 		}
@@ -267,12 +280,11 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			}
 
 			const { data } = await api.put(`/tasks/${id}`, {...task, project: projectId}, config)
-			
-			const projectUpdated = { ...project! }
-			projectUpdated.tasks = project!.tasks.map(t => t._id === id ? data : t)			
-			setProject(projectUpdated)
+						
 			setMessage({ error: false, text: '' })
 			setModalFormTask(false)
+
+			socket.emit('update task', data)
 		} catch (error) {
 			console.log(error);			
 		}
@@ -301,14 +313,15 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 			const { data } = await api.delete(`/tasks/${task?._id}`, config)
 			setMessage({ error: false, text: data.message })
 			
-			const projectUpdated = { ...project! }
-			projectUpdated.tasks = project!.tasks.filter(t => t._id !== task?._id)
-			setProject(projectUpdated)
 			setModalDeleteTask(false)
+
+			socket.emit('delete task', task)
+
 			setTask(null)
 			setTimeout(() => {
 				setMessage({ error: false, text: '' })
 			}, 2500);
+
 		} catch (error) {
 			console.log(error);			
 		}
@@ -410,11 +423,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 
 			const { data } = await api.post(`tasks/${id}/change-status`, {}, config)
 
-			const projectUpdated = { ...project! }
-			projectUpdated.tasks = project!.tasks.map(t => t._id === id ? data : t)
-			setProject(projectUpdated)
 			setTask(null)
 			setMessage({ error: false, text: '' })
+
+			socket.emit('change status task', data)
 		} catch (error) {
 			console.log(error);			
 		}
@@ -422,6 +434,30 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 
 	const handleSearcher = () => {
 		setSearcher(!searcher)
+	}
+
+	const submitProjectTasks = (task: Task) => {
+		const projectUpdated = { ...project! }
+		projectUpdated.tasks = [...projectUpdated.tasks, task]			
+		setProject(projectUpdated)
+	}
+
+	const updateProjectTask = (task: Task) => {
+		const projectUpdated = { ...project! }
+		projectUpdated.tasks = project!.tasks.map(t => t._id === task._id ? task : t)			
+		setProject(projectUpdated)
+	}
+
+	const deleteProjectTask = (task: Task) => {
+		const projectUpdated = { ...project! }
+		projectUpdated.tasks = project!.tasks.filter(t => t._id !== task?._id)
+		setProject(projectUpdated)
+	}
+
+	const changeStatusTask = (task: Task) => {
+		const projectUpdated = { ...project! }
+		projectUpdated.tasks = projectUpdated.tasks.map(t => t._id === task._id ? task : t)			
+		setProject(projectUpdated)
 	}
 
 	return (
@@ -453,6 +489,10 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				toggleTaskStatus,
 				handleSearcher,
 				searcher,
+				submitProjectTasks,
+				updateProjectTask,
+				deleteProjectTask,
+				changeStatusTask
 			}}
 		>
 			{children}
