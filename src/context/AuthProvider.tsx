@@ -7,6 +7,7 @@ export type AuthCtx = {
 	auth: AuthUser;
 	setAuth: (auth: AuthUser) => void;
 	loading: boolean;
+	closeSessionAuth: () => void;
 }
 
 interface AuthProviderProps {
@@ -20,7 +21,8 @@ const initialValue = {
 		email: '',
 	},
 	setAuth: () => { },
-	loading: true
+	loading: true,
+	closeSessionAuth: () => { }
 }
 
 const AuthContext = createContext<AuthCtx>(initialValue)
@@ -59,12 +61,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 		autheticateUser()
 	}, [])
 
+	const closeSessionAuth = () => {
+		setAuth(initialValue.auth)
+	}
+
 	return (
 		<AuthContext.Provider
 			value={{
 				auth,
 				setAuth,
-				loading
+				loading,
+				closeSessionAuth
 			}}
 		>
 			{children}

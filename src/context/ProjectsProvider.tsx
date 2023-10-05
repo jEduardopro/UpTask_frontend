@@ -48,6 +48,7 @@ export type ProjectsCtx = {
 	updateProjectTask: (task: Task) => void;
 	deleteProjectTask: (task: Task) => void;
 	changeStatusTask: (task: Task) => void;
+	closeSessionProjects: () => void;
 }
 
 const initialValue = {
@@ -81,6 +82,7 @@ const initialValue = {
 	updateProjectTask: () => { },
 	deleteProjectTask: () => { },
 	changeStatusTask: () => { },
+	closeSessionProjects: () => {}
 }
 
 const ProjectsContext = createContext<ProjectsCtx>(initialValue)
@@ -460,6 +462,12 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 		setProject(projectUpdated)
 	}
 
+	const closeSessionProjects = () => {
+		setProjects([])
+		setProject(null)
+		setMessage({ error: false, text: '' })
+	}
+
 	return (
 		<ProjectsContext.Provider
 			value={{
@@ -492,7 +500,8 @@ const ProjectsProvider = ({ children }: ProjectsProviderProps) => {
 				submitProjectTasks,
 				updateProjectTask,
 				deleteProjectTask,
-				changeStatusTask
+				changeStatusTask,
+				closeSessionProjects
 			}}
 		>
 			{children}
